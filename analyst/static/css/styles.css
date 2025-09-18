@@ -1,0 +1,11 @@
+body {
+    font-family: Arial, sans-serif;
+}
+.ml-1\/4 {
+    margin-left: 25%;
+}
+pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+}

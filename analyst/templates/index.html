@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex h-screen">
+    <!-- Left Sidebar -->
+    <div class="w-1/4 bg-white shadow-md flex flex-col fixed h-full">
+        <div class="p-4">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-12">
+        </div>
+        <div class="flex-1 overflow-y-auto p-4">
+            <h2 class="text-lg font-bold mb-4">Recent Chats</h2>
+            {% for chat in chats %}
+                <div class="mb-2 p-2 bg-gray-100 rounded cursor-pointer hover:bg-gray-200">
+                    <p class="text-sm">{{ chat.message|truncatechars:50 }}</p>
+                    <small class="text-gray-500">{{ chat.timestamp }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-1/4 w-3/4 p-6 overflow-y-auto">
+        {% for analysis in analyses %}
+            <div class="bg-white p-6 rounded shadow-md mb-6">
+                <h1 class="text-2xl font-bold mb-4">{{ analysis.company_name }}</h1>
+                <h2 class="text-lg font-semibold">Sector: {{ analysis.sector }}</h2>
+                <h3 class="text-md font-semibold mt-4">Financial Multiples</h3>
+                <pre>{{ analysis.financial_multiples|json }}</pre>
+                <h3 class="text-md font-semibold mt-4">Hiring Data</h3>
+                <pre>{{ analysis.hiring_data|json }}</pre>
+                <h3 class="text-md font-semibold mt-4">Traction Signals</h3>
+                <pre>{{ analysis.traction_signals|json }}</pre>
+                <h3 class="text-md font-semibold mt-4">Risk Indicators</h3>
+                <pre>{{ analysis.risk_indicators|json }}</pre>
+                <h3 class="text-md font-semibold mt-4">Growth Potential</h3>
+                <p>{{ analysis.growth_potential }}</p>
+                <h3 class="text-md font-semibold mt-4">Recommendations</h3>
+                <p>{{ analysis.recommendations }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bottom Chat Input -->
+    <div class="fixed bottom-0 left-1/4 right-0 bg-white p-4 shadow-md">
+        <form method="post" enctype="multipart/form-data" class="flex items-center">
+            {% csrf_token %}
+            <input type="text" name="message" placeholder="Ask about a startup..." class="flex-1 p-2 border rounded-l">
+            <input type="file" name="file" accept="audio/*,video/*,image/*,.pdf,.txt" class="p-2">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded-r">Send</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
