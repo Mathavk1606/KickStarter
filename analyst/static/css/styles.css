@@ -1,11 +1,50 @@
+/* Custom properties for easy theming */
+:root {
+    --primary-color: #2563eb; /* blue-600 */
+    --primary-hover-color: #1d4ed8; /* blue-800 */
+    --active-bg-color: #eff6ff; /* blue-50 */
+    --text-color-primary: #1f2937; /* gray-800 */
+    --text-color-secondary: #6b7280; /* gray-500 */
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
 }
-.ml-1\/4 {
-    margin-left: 25%;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Sidebar chat item styles */
+.chat-item.active {
+    background-color: var(--active-bg-color);
 }
-pre {
-    background-color: #f4f4f4;
-    padding: 10px;
-    border-radius: 5px;
+
+.chat-item.active p {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Main content analysis card styles */
+.analysis-card {
+    background-color: #f9fafb; /* gray-50 */
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 0.75rem; /* 12px */
+    padding: 1rem;
+    height: 100%; /* Ensure cards in the same row are equal height */
+}
+
+.analysis-card pre {
+    background-color: #ffffff;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Fira Code', monospace;
+    color: #374151; /* gray-700 */
+    font-size: 0.8rem;
+}
+
+/* Custom file input styling */
+#file-upload {
+    display: none;
 }
