@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
-{% load static json_filters %}
+{% load static %}
 
 {% block content %}
 <div class="relative min-h-screen bg-gray-50">
-
     <!-- Left Sidebar (Fixed Position) -->
     <div class="fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 flex flex-col z-10">
         <!-- Logo and New Chat -->
@@ -13,8 +12,8 @@
                     src="{% static 'images/logo.png' %}" 
                     alt="Kickstarter Logo" 
                     class="h-10"
-                    onerror="this.onerror=null; this.src='https://www.svgrepo.com/show/505199/letter-k.svg';">
-                <button class="text-gray-500 hover:text-blue-600">
+                    onerror="this.src='{% static 'images/fallback-logo.png' %}';">
+                <button class="text-gray-500 hover:text-blue-600" onclick="clearChatInput()">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
@@ -22,29 +21,86 @@
             </div>
         </div>
 
-        <!-- Chat History (no changes here) -->
+        <!-- Chat History -->
         <div class="flex-1 overflow-y-auto p-4 space-y-2">
-            <!-- ... your chat history loop ... -->
             <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Recent Chats</h2>
             {% for chat in chats %}
-                <div class="chat-item p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors duration-200">
+                <div class="chat-item p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors duration-200 {% if chat.id == selected_chat_id %}active bg-blue-50{% endif %}">
                     <p class="text-sm font-medium text-gray-800 truncate">{{ chat.message|truncatechars:40 }}</p>
-                    <small class="text-xs text-gray-400">{{ chat.timestamp }}</small>
+                    <small class="text-xs text-gray-400">{{ chat.timestamp|date:"M d, Y H:i" }}</small>
                 </div>
             {% empty %}
                 <p class="text-sm text-gray-400 text-center mt-4">No recent chats.</p>
             {% endfor %}
-            <div class="chat-item active p-3 rounded-lg cursor-pointer transition-colors duration-200">
-                <p class="text-sm font-medium text-gray-800 truncate">Analysis of Innovate Inc.</p>
-                <small class="text-xs text-gray-400">2 hours ago</small>
-            </div>
         </div>
     </div>
 
-    <!-- Main Content Area (no changes here) -->
+    <!-- Main Content Area -->
     <div class="ml-80 pb-32">
-        <main class="max-w-4xl mx-auto py-10 px-6">
-            <!-- ... your analysis content loop ... -->
+        <main class="max-w-10xl mx-auto py-10 px-6">
+            {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                        <div class="p-4 mb-2 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% for analysis in analyses %}
+                <div class="bg-white p-8 rounded-lg shadow-md mb-6 border border-gray-200">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">{{ analysis.company_name }}</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-8 gap-8">
+                        <!-- Sector and Basic Info -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Overview</h3>
+                            <p class="text-gray-600"><strong>Sector:</strong> {{ analysis.sector }}</p>
+                            <p class="text-gray-600 mt-2"><strong>Created:</strong> {{ analysis.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <!-- Financial Multiples -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Financial Multiples</h3>
+                            <p class="text-gray-600"><strong>Revenue:</strong> ${{ analysis.financial_multiples.revenue|floatformat:0 }}</p>
+                            <p class="text-gray-600 mt-2"><strong>Growth Rate:</strong> {{ analysis.financial_multiples.growth_rate|floatformat:2 }}%</p>
+                        </div>
+                        <!-- Hiring Data -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Hiring Data</h3>
+                            <p class="text-gray-600"><strong>Headcount:</strong> {{ analysis.hiring_data.headcount }}</p>
+                            <p class="text-gray-600 mt-2"><strong>New Hires:</strong> {{ analysis.hiring_data.new_hires }}</p>
+                        </div>
+                        <!-- Traction Signals -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Traction Signals</h3>
+                            <p class="text-gray-600"><strong>Customers:</strong> {{ analysis.traction_signals.customers }}</p>
+                            <p class="text-gray-600 mt-2"><strong>Retention:</strong> {{ analysis.traction_signals.retention|floatformat:2 }}%</p>
+                        </div>
+                        <!-- Risk Indicators -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-700 mb-2">Risk Indicators</h3>
+                            <p class="text-gray-600"><strong>Churn:</strong> {{ analysis.risk_indicators.churn }}</p>
+                            <p class="text-gray-600 mt-2"><strong>Metrics Consistency:</strong> {{ analysis.risk_indicators.metrics_consistency }}</p>
+                        </div>
+                    </div>
+                    <!-- Growth Potential and Recommendations -->
+                    <div class="mt-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2">Growth Potential</h3>
+                                <p class="text-gray-600">{{ analysis.growth_potential }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2">Recommendations</h3>
+                                <p class="text-gray-600">{{ analysis.recommendations }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center py-10">
+                    <p class="text-gray-500 text-lg">No analysis available. Start by submitting a message or uploading a file below.</p>
+                </div>
+            {% endfor %}
         </main>
     </div>
 
@@ -53,22 +109,22 @@
         <div class="max-w-4xl mx-auto px-6 pb-6">
             <form method="post" enctype="multipart/form-data" class="relative bg-white p-2 rounded-xl shadow-lg border border-gray-200">
                 {% csrf_token %}
-                <input type="text" name="message" placeholder="Ask a follow-up or analyze a new startup..." class="w-full p-3 pr-24 bg-transparent border-none focus:ring-0 focus:outline-none">
+                <input type="text" name="message" id="chat-input" placeholder="Ask a follow-up or analyze a new startup..." class="w-full p-3 pr-24 bg-transparent border-none focus:ring-0 focus:outline-none">
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                     <label for="file-upload" class="p-2 text-gray-500 rounded-full hover:bg-gray-100 cursor-pointer">
                         <img 
                             src="{% static 'images/paper-clip.png' %}" 
                             alt="Upload" 
                             class="h-6 w-6"
-                            onerror="this.onerror=null; this.src='https://www.svgrepo.com/show/522339/attachment.svg';">
+                            onerror="this.src='{% static 'images/fallback-paper-clip.png' %}';">
                     </label>
-                    <input id="file-upload" name="file" type="file" class="hidden">
+                    <input id="file-upload" name="file" type="file" class="hidden" onchange="updateFileName(this)">
                     <button type="submit" class="p-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 ml-2">
-                         <img 
+                        <img 
                             src="{% static 'images/send-icon.svg' %}" 
                             alt="Send" 
                             class="h-6 w-6"
-                            onerror="this.onerror=null; this.src='https://www.svgrepo.com/show/533315/send-alt-1.svg';">
+                            onerror="this.src='{% static 'images/fallback-send-icon.svg' %}';">
                     </button>
                 </div>
             </form>
@@ -76,4 +132,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    function updateFileName(input) {
+        const fileName = input.files.length > 0 ? input.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName;
+    }
+
+    function clearChatInput() {
+        document.getElementById('chat-input').value = '';
+        document.getElementById('file-upload').value = '';
+        document.getElementById('file-name').textContent = '';
+    }
+</script>
 {% endblock %}
